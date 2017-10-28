@@ -16,7 +16,7 @@ Debugger: React GUI, written in typescript
     - Updates GUI
 
 
-Server: Robot Framework listener/Flask Server, written in python
+Server: Robot Framework listener/Flask server, written in python
 
     - Starts RF Tests
 
