@@ -22,6 +22,7 @@ Server: Robot Framework listener/Flask server, written in python
     X Create a Flask Server
     X Add a start-test-suite endpoint
     - Initiate a robot framework test based on the test-name parameter
+    - Disable cors
 
 ### Debugger TODO
 
