@@ -28,4 +28,4 @@ Server: Robot Framework listener/Flask server, written in python
 
     X Create a React App
     X Create a test suite name textbox and a start test button
-    - Send a request to the Server when start test button is pressed
+    X Send a request to the Server when start test button is pressed
