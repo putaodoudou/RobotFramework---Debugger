@@ -29,7 +29,7 @@ class StartTestSuite extends React.Component<Props> {
   handleNameSubmit(): void {
     console.log('StartTestSuite.handleNameSubmit initiated');
     
-    fetch(`http://localhost:5000/start-test-suite/${this.state.name}`)
+    fetch(`http://localhost:5000/${this.state.name}`)
       .then(response => {
         console.log(response);
       })
