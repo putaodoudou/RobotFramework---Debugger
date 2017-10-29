@@ -21,12 +21,12 @@ Server: Robot Framework listener/Flask server, written in python
 
     X Create a Flask Server
     X Add a start-test-suite endpoint
-    X Create a python listener that will send json to the server api
-    - Initiate a robot framework test based on the test-name parameter
+    X Create a python listener/server
     X Disable cors
+    - Initiate a robot framework test based on the test-name parameter
 
 ### Debugger TODO
 
     X Create a React App
     X Create a test suite name textbox and a start test button
-    X Send a request to the Server when start test button is pressed
+    - Start a RF test/listener when the start test button is pressed
