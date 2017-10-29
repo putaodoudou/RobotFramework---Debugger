@@ -1,39 +1,30 @@
-from flask import Flask, request, jsonify
-from flask_restful import Resource, Api
-from flask_cors import CORS
-from sqlalchemy import create_engine
-from json import dump
 from robot.running.model import TestSuite
-from multiprocessing import Process
+import threading
+from BaseHTTPServer import HTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-APP = Flask(__name__)
-CORS(APP)
-
-suite_data = None
-suite_result = None
-
-
-class listener(Resource):
+class listener():
     ROBOT_LISTENER_API_VERSION = 2
 
     def __init__(self):
-        global APP
-        APP.run(host='localhost', port=3002, debug=True)
-        self.server = Process(target=APP.run)
-
-    @APP.route('/')
-    def index():
-        global suite_data
-        return jsonify([suite_data, suite_result])
+        print 'Listening on Port 3002'
+        addr = ('localhost', 3002)
+        self.server = HTTPServer(addr, SimpleHTTPRequestHandler)
+        thread = threading.Thread(target = self.server.serve_forever)
+        thread.daemon = True
+        thread.start()
 
     def start_suite(self, data, result):
-        global suite_data
-        global suite_result
-        suite_data = data
-        suite_result = data
+        #suite = jsonify([data, result])
+        print 'Start Suite'
+        pass
 
-    def end_suite(self, name, attrs):
-        self.server.terminate()
+    def end_suite(self, data, result):
+        #suite = jsonify([data, result])
+        print 'end_suite'
+        if not self.server._webserver_thread:
+            return
+        self.server.shutdown()
 
     def start_test(self, name, attrs):
         pass
@@ -67,7 +58,3 @@ class listener(Resource):
 
     def debug_file(self, path):
         pass
-
-if __name__ == '__main__':
-    APP.run(host='localhost', port='3002', debug=True)
-    
