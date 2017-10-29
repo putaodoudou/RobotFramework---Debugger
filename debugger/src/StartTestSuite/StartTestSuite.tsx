@@ -7,13 +7,15 @@ interface Props {
 
 interface State {
   name: string;
+  inProgress: boolean;
 }
 
 /* tslint:disable:no-any */
 /* tslint:disable:no-console */
 class StartTestSuite extends React.Component<Props> {
   public state: State = {
-    name: ''
+    name: '',
+    inProgress: false,
   };
 
   constructor(props: Props) {
@@ -29,13 +31,12 @@ class StartTestSuite extends React.Component<Props> {
   handleNameSubmit(): void {
     console.log('StartTestSuite.handleNameSubmit initiated');
     
-    fetch(`http://localhost:5000/${this.state.name}`)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    if (!this.state.inProgress) {
+      fetch(`http://localhost:3001/${this.state.name}`)
+        .then(res => res.text())
+        .then(body => console.log(body));
+    }
+    // TODO: Set in progress to true
   }
 
   render() {
