@@ -1,39 +1,39 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from sqlalchemy import create_engine
 from json import dump
+from robot.running.model import TestSuite
+from multiprocessing import Process
 
 APP = Flask(__name__)
 CORS(APP)
 
-current_suite_name = ''
+suite_data = None
+suite_result = None
+
 
 class listener(Resource):
     ROBOT_LISTENER_API_VERSION = 2
-    
+
     def __init__(self):
-        current_suite_name = None
+        global APP
+        APP.run(host='localhost', port=3002, debug=True)
+        self.server = Process(target=APP.run)
 
-    def put(self, test_suite_name):
-        print test_suite_name
-        return
-    
     @APP.route('/')
-    @APP.route('/<name>')
-    def index(name=None):
-        global current_suite_name
-        if name is not None:
-            current_suite_name = name
-            return 'Set the name'
-        else:
-            return current_suite_name
+    def index():
+        global suite_data
+        return jsonify([suite_data, suite_result])
 
-    def start_suite(self, name, attrs):
-        pass
+    def start_suite(self, data, result):
+        global suite_data
+        global suite_result
+        suite_data = data
+        suite_result = data
 
     def end_suite(self, name, attrs):
-        pass
+        self.server.terminate()
 
     def start_test(self, name, attrs):
         pass
@@ -69,5 +69,5 @@ class listener(Resource):
         pass
 
 if __name__ == '__main__':
-    APP.run(debug=True)
+    APP.run(host='localhost', port='3002', debug=True)
     
