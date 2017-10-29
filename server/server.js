@@ -8,8 +8,7 @@ app.use(cors());
 
 app.get('/:testName', function (req, res) {
   const test = exec(`robot --listener ${path.resolve(__dirname + '/../listener/listener.py')} ` +
-                    `${path.resolve(__dirname + '/../tests/' + req.params.testName + '.robot')} ` + 
-                    `${path.resolve(__dirname + '/../tests/Results')}`,
+                    `${path.resolve(__dirname + '/../tests/' + req.params.testName + '.robot')} `,
                     (err, stdout, stderr) => {
       if (err) {
         console.error(`exec error: ${err}`);
@@ -38,5 +37,5 @@ app.get('/:testName', function (req, res) {
 });
 
 app.listen(3001, function () {
-  console.log('Example app listening on port 3000!')
+  console.log('Example app listening on port 3001!')
 });
