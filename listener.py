@@ -6,11 +6,11 @@ from json import dump
 
 APP = Flask(__name__)
 CORS(APP)
-ROBOT_LISTENER_API_VERSION = 2
 
 current_suite_name = ''
 
 class listener(Resource):
+    ROBOT_LISTENER_API_VERSION = 2
     
     def __init__(self):
         current_suite_name = None
