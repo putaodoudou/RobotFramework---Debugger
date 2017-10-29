@@ -23,4 +23,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # python
-/*.pyc
+*.pyc
+
+# Robot Framework
+log.html
+output.xml
+report.html
