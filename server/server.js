@@ -7,7 +7,7 @@ const { exec } = require('child_process');
 app.use(cors());
 
 app.get('/:testName', function (req, res) {
-  const test = exec(`robot --listener ${path.resolve(__dirname + '/../listener.py')} ` +
+  const test = exec(`robot --listener ${path.resolve(__dirname + '/../listener/listener.py')} ` +
                     `${path.resolve(__dirname + '/../tests/' + req.params.testName + '.robot')} ` + 
                     `${path.resolve(__dirname + '/../tests/Results')}`,
                     (err, stdout, stderr) => {
