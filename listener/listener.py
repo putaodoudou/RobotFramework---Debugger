@@ -3,32 +3,57 @@ import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import json
 import urlparse
-import subprocess
-import sys
-import os
-import psutil
+from queue import Queue
+import cgi
 
-SUITE_DATA = None
-SUITE_RESULT = None
-TESTS_DATA = []
-TESTS_RESULT = []
-KEYWORDS = []
-VARIABLES = []
+commands = Queue()
+suites = None
+suites_result = None
+tests = []
+tests_results = []
+keywords = []
+keywords_result = []
+variables = []
+
+current_suite = None
+current_suite_result = None
+current_test = None
+current_test_result
+current_keyword = None
+current_keyword_result = None
 
 class listener():
     ROBOT_LISTENER_API_VERSION = 2
 
-    def start_suite(self, data, result):
-        #suite = json.jsonify([data, result])
-        global SUITE_DATA
-        global SUITE_RESULT
-        SUITE_DATA = data
-        SUITE_RESULT = result
-        pass
+    def __init__(self):
+        print 'Listening on Port 3002'
+        addr = ('localhost', 3002)
+        self.server = HTTPServer(addr, RequestHandler)
+        thread = threading.Thread(target = self.server.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+    def start_suite(self, suite, result):
+        global commands
+        global current_suit
+        global current_suit_result
+
+        self._clear_currents('suite')
+
+        if not commands.empty():
+            for command in commands:
+                if command.type == 'add_keyword':
+                    suite.tests.pop().keywords.create(command.args, command.kwargs)
+
+        current_suit = suite
+        current_suit_result = result
 
     def end_suite(self, data, result):
         #suite = json.jsonify([data, result])
         print 'end_suite'
+        if not self.server:
+            return
+        self.server.shutdown()
 
     def start_test(self, name, attrs):
         pass
@@ -63,70 +88,72 @@ class listener():
     def debug_file(self, path):
         pass
 
-class RequestHandler(BaseHTTPRequestHandler):
-    def __init__(self):
-        self._process = None
+    def _clear_currents(self, command_type):
+        global current_suite
+        global current_suite_result
+        global current_test
+        global current_test_result 
+        global current_keyword
+        global current_keyword_result
 
+        if command_type == 'suite':
+            current_suite = None
+            current_suite_result = None
+            current_test = None
+            current_test_result = None
+            current_keyword = None
+            current_keyword_result = None
+
+        elif command_type == 'test':
+            current_test = None
+            current_test_result = None
+            current_keyword = None
+            current_keyword_result = None
+
+        #TODO keywords and stuff
+
+    
+class RequestHandler(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
 
-    def do_GET(self, name=None):
-        global SUITE_DATA
-        global SUITE_RESULT
+    def do_GET(self):
+        global suites
+        global suites_result
 
         self._set_headers()
         parsed_path = urlparse.urlparse(self.path)
 
-        if parsed_path.path == '/':
-            response = json.dumps([SUITE_DATA, SUITE_RESULT])
+        if parsed_path.path == '/update':
+            response = json.dumps([suites, suites_result])
             self.wfile.write(response)
-        
-        # TODO: Regex this to find /``any string``
-        if parsed_path.path == '/test':
-            test_name = parsed_path.path.lstrip('//')
-            self._start_test(test_name)
 
         if parsed_path.path == '/pause':
             pass
 
-        if parsed_path.path == '/continue':
+        if parsed_path.path == '/stop':
             pass
+    
+    def do_POST(self):
+        global suites
+        global suites_result
+        global commands
+
+        self._set_headers()
+        parsed_path = urlparse.urlparse(self.path)
+        self.data_string = self.rfile.read(int(self.headers['Content-Length']))
+
+        self.send_response(200)
+        self.end_headers()
+
+        data = json.loads(self.data_string)
+        print data
+
+        if parsed_path.path == '/keyword':
+            global commands
+            commands.put(data)
 
     def do_HEAD(self):
         self._set_headers()
-
-    def _start_test(self, name):
-        dir_path = sys.path[0]
-        test = subprocess.call(["robot",
-                        "--listener",
-                        os.path.abspath(dir_path + "/../listener/listener.py"),
-                        os.path.abspath(dir_path + "/../tests/" + name + ".robot")])
-        self._process = psutil.Process(test.pid)
-
-    def _pause_test(self):
-        if self._process.status() == 'running':
-            self._process.suspend()
-
-    def _stop_test(self):
-        status = self._process.status()
-        if status == 'running' or status == 'suspended':
-            self._process.terminate()
-
-    def _step(self):
-        pass
-
-    def stop_server(self):
-        if not self.server:
-            return
-        self.server.shutdown()
-
-if __name__ == "__main__":
-    # Start the server to listen for command from the front end
-    print 'Listening on Port 3002'
-    addr = ('localhost', 3002)
-    server = HTTPServer(addr, RequestHandler)
-    thread = threading.Thread(target = server.serve_forever)
-    thread.daemon = True
-    thread.start()
