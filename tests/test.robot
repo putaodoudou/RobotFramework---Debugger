@@ -1,8 +1,20 @@
 *** Settings ***
 Library    Selenium2Library
 
-*** Test cases ***
+*** Test Cases ***
 Test
-  Open Browser    https://www.google.com    gc
+  [Documentation]
+  ...    Test Docs
+  [Setup]    Open Browser    https://www.google.com    gc
+  Log    Start Test
+  Keyword Thing
+  Log    End Test
+  [Teardown]    Close All Browsers
+
+*** Keywords ***
+Keyword Thing
+  [Documentation]
+  ...   Keyword Docs
+  Log    Start Keyword Thing
   Sleep    5
-  Close All Browsers
+  Log    End Keyword Thing
